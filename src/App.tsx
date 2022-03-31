@@ -1,26 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import { useSudoku } from './Sudoku';
+import type { Difficulty } from './Sudoku';
 
-function App() {
+const GameBoard = () => {
+  return <div>The board</div>;
+};
+
+const App = () => {
+  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
+  const gameState = useSudoku({ difficulty });
+  console.log(gameState);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <header className="App-header">Sudoku App</header>
+      <GameBoard />
     </div>
   );
-}
+};
 
 export default App;
