@@ -1,18 +1,34 @@
 import React from 'react';
-import type { Difficulty, OptionalPuzzle2DValue } from './puzzleTypes';
+import type {
+  Difficulty,
+  Puzzle2DIndex,
+  Puzzle2DValue,
+  PuzzleSquare as PuzzleSquareType,
+} from './puzzleTypes';
 import { useSudoku } from './useSudoku';
 import './PuzzleBoard.css';
 
 type PuzzleSquareProps = {
-  value: OptionalPuzzle2DValue;
+  value: PuzzleSquareType;
+  setValue: (value: string) => void;
 };
 
 const PuzzleSquare = (props: PuzzleSquareProps) => {
-  const value = props.value === null ? '' : props.value;
+  const { value: square, setValue } = props;
+  const value = square.value === null ? '' : square.value;
 
   return (
     <div>
-      <input type="text" defaultValue={value} />
+      <label className="visually-hidden" htmlFor={square.id}>
+        {square.id}
+      </label>
+      <input
+        id={square.id}
+        type="text"
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        className="puzzle-square"
+      />
     </div>
   );
 };
@@ -23,25 +39,40 @@ type PuzzleBoardProps = {
 
 export const PuzzleBoard = (props: PuzzleBoardProps) => {
   const { difficulty } = props;
-  const gameState = useSudoku({ difficulty });
+  const game = useSudoku({ difficulty });
 
-  if (gameState.state === 'error') {
-    throw gameState.error;
+  if (game.state === 'error') {
+    throw game.error;
   }
 
-  if (gameState.state !== 'playing') {
+  if (game.state !== 'playing') {
     return null;
   }
 
-  const { puzzle } = gameState;
+  const { puzzle, setSquare } = game;
 
   return (
-    <div className="puzzle-board">
-      {puzzle.map((column, columIndex) => {
+    <section className="puzzle-board" title="Puzzle Board">
+      {puzzle.map((column, columnIndex) => {
         return column.map((square, rowIndex) => {
-          return <PuzzleSquare value={square.value} key={square.id} />;
+          return (
+            <PuzzleSquare
+              value={square}
+              setValue={(nextValue) => {
+                const cIndex = columnIndex as Puzzle2DIndex;
+                const rIndex = rowIndex as Puzzle2DIndex;
+
+                if (nextValue === '') {
+                  setSquare(cIndex, rIndex, null);
+                }
+
+                setSquare(cIndex, rIndex, Number(nextValue) as Puzzle2DValue);
+              }}
+              key={square.id}
+            />
+          );
         });
       })}
-    </div>
+    </section>
   );
 };
