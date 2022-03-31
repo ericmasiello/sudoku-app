@@ -44,103 +44,346 @@ it('should convert a valid map to a 2D array', () => {
   expect(result).toMatchInlineSnapshot(`
     Array [
       Array [
-        4,
-        1,
-        null,
-        null,
-        null,
-        null,
-        8,
-        9,
-        7,
+        Object {
+          "id": "A1",
+          "value": 4,
+        },
+        Object {
+          "id": "A2",
+          "value": 1,
+        },
+        Object {
+          "id": "A3",
+          "value": null,
+        },
+        Object {
+          "id": "A4",
+          "value": null,
+        },
+        Object {
+          "id": "A5",
+          "value": null,
+        },
+        Object {
+          "id": "A6",
+          "value": null,
+        },
+        Object {
+          "id": "A7",
+          "value": 8,
+        },
+        Object {
+          "id": "A8",
+          "value": 9,
+        },
+        Object {
+          "id": "A9",
+          "value": 7,
+        },
       ],
       Array [
-        null,
-        9,
-        null,
-        null,
-        null,
-        null,
-        4,
-        2,
-        3,
+        Object {
+          "id": "B1",
+          "value": null,
+        },
+        Object {
+          "id": "B2",
+          "value": 9,
+        },
+        Object {
+          "id": "B3",
+          "value": null,
+        },
+        Object {
+          "id": "B4",
+          "value": null,
+        },
+        Object {
+          "id": "B5",
+          "value": null,
+        },
+        Object {
+          "id": "B6",
+          "value": null,
+        },
+        Object {
+          "id": "B7",
+          "value": 4,
+        },
+        Object {
+          "id": "B8",
+          "value": 2,
+        },
+        Object {
+          "id": "B9",
+          "value": 3,
+        },
       ],
       Array [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        5,
-        null,
-        null,
+        Object {
+          "id": "C1",
+          "value": null,
+        },
+        Object {
+          "id": "C2",
+          "value": null,
+        },
+        Object {
+          "id": "C3",
+          "value": null,
+        },
+        Object {
+          "id": "C4",
+          "value": null,
+        },
+        Object {
+          "id": "C5",
+          "value": null,
+        },
+        Object {
+          "id": "C6",
+          "value": null,
+        },
+        Object {
+          "id": "C7",
+          "value": 5,
+        },
+        Object {
+          "id": "C8",
+          "value": null,
+        },
+        Object {
+          "id": "C9",
+          "value": null,
+        },
       ],
       Array [
-        null,
-        null,
-        null,
-        null,
-        1,
-        null,
-        null,
-        null,
-        null,
+        Object {
+          "id": "D1",
+          "value": null,
+        },
+        Object {
+          "id": "D2",
+          "value": null,
+        },
+        Object {
+          "id": "D3",
+          "value": null,
+        },
+        Object {
+          "id": "D4",
+          "value": null,
+        },
+        Object {
+          "id": "D5",
+          "value": 1,
+        },
+        Object {
+          "id": "D6",
+          "value": null,
+        },
+        Object {
+          "id": "D7",
+          "value": null,
+        },
+        Object {
+          "id": "D8",
+          "value": null,
+        },
+        Object {
+          "id": "D9",
+          "value": null,
+        },
       ],
       Array [
-        null,
-        2,
-        null,
-        null,
-        5,
-        9,
-        null,
-        8,
-        null,
+        Object {
+          "id": "E1",
+          "value": null,
+        },
+        Object {
+          "id": "E2",
+          "value": 2,
+        },
+        Object {
+          "id": "E3",
+          "value": null,
+        },
+        Object {
+          "id": "E4",
+          "value": null,
+        },
+        Object {
+          "id": "E5",
+          "value": 5,
+        },
+        Object {
+          "id": "E6",
+          "value": 9,
+        },
+        Object {
+          "id": "E7",
+          "value": null,
+        },
+        Object {
+          "id": "E8",
+          "value": 8,
+        },
+        Object {
+          "id": "E9",
+          "value": null,
+        },
       ],
       Array [
-        null,
-        null,
-        null,
-        8,
-        null,
-        null,
-        null,
-        7,
-        null,
+        Object {
+          "id": "F1",
+          "value": null,
+        },
+        Object {
+          "id": "F2",
+          "value": null,
+        },
+        Object {
+          "id": "F3",
+          "value": null,
+        },
+        Object {
+          "id": "F4",
+          "value": 8,
+        },
+        Object {
+          "id": "F5",
+          "value": null,
+        },
+        Object {
+          "id": "F6",
+          "value": null,
+        },
+        Object {
+          "id": "F7",
+          "value": null,
+        },
+        Object {
+          "id": "F8",
+          "value": 7,
+        },
+        Object {
+          "id": "F9",
+          "value": null,
+        },
       ],
       Array [
-        null,
-        null,
-        9,
-        5,
-        2,
-        null,
-        3,
-        4,
-        null,
+        Object {
+          "id": "G1",
+          "value": null,
+        },
+        Object {
+          "id": "G2",
+          "value": null,
+        },
+        Object {
+          "id": "G3",
+          "value": 9,
+        },
+        Object {
+          "id": "G4",
+          "value": 5,
+        },
+        Object {
+          "id": "G5",
+          "value": 2,
+        },
+        Object {
+          "id": "G6",
+          "value": null,
+        },
+        Object {
+          "id": "G7",
+          "value": 3,
+        },
+        Object {
+          "id": "G8",
+          "value": 4,
+        },
+        Object {
+          "id": "G9",
+          "value": null,
+        },
       ],
       Array [
-        null,
-        4,
-        5,
-        null,
-        9,
-        6,
-        7,
-        null,
-        2,
+        Object {
+          "id": "H1",
+          "value": null,
+        },
+        Object {
+          "id": "H2",
+          "value": 4,
+        },
+        Object {
+          "id": "H3",
+          "value": 5,
+        },
+        Object {
+          "id": "H4",
+          "value": null,
+        },
+        Object {
+          "id": "H5",
+          "value": 9,
+        },
+        Object {
+          "id": "H6",
+          "value": 6,
+        },
+        Object {
+          "id": "H7",
+          "value": 7,
+        },
+        Object {
+          "id": "H8",
+          "value": null,
+        },
+        Object {
+          "id": "H9",
+          "value": 2,
+        },
       ],
       Array [
-        null,
-        3,
-        7,
-        null,
-        8,
-        4,
-        6,
-        5,
-        9,
+        Object {
+          "id": "I1",
+          "value": null,
+        },
+        Object {
+          "id": "I2",
+          "value": 3,
+        },
+        Object {
+          "id": "I3",
+          "value": 7,
+        },
+        Object {
+          "id": "I4",
+          "value": null,
+        },
+        Object {
+          "id": "I5",
+          "value": 8,
+        },
+        Object {
+          "id": "I6",
+          "value": 4,
+        },
+        Object {
+          "id": "I7",
+          "value": 6,
+        },
+        Object {
+          "id": "I8",
+          "value": 5,
+        },
+        Object {
+          "id": "I9",
+          "value": 9,
+        },
       ],
     ]
   `);

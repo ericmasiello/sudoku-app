@@ -48,7 +48,7 @@ const gameReducer: GameReducer = (state, action) => {
   }
 };
 
-type UseSudoku = ({ difficulty }: { difficulty: Difficulty }) => void;
+type UseSudoku = ({ difficulty }: { difficulty: Difficulty }) => GameState;
 
 export const useSudoku: UseSudoku = (options) => {
   const { difficulty } = options;
