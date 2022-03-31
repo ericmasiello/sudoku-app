@@ -16,7 +16,7 @@ const isPuzzleValue = (value: number): value is Puzzle2DValue => {
   return value >= 1 && value <= 9;
 };
 
-const COLUMN_OFFSET = 'A'.charCodeAt(0);
+export const COLUMN_OFFSET = 'A'.charCodeAt(0);
 
 const puzzleColumnToIndex = (column: PuzzleMapColumn): Puzzle2DIndex => {
   /*

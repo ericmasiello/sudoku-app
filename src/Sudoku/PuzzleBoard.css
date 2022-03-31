@@ -14,3 +14,7 @@
   height: 100%;
   text-align: center;
 }
+
+.puzzle-square--invalid {
+  border-color: red;
+}

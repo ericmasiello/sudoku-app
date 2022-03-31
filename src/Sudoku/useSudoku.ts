@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useReducer } from 'react';
-import { convertPuzzleMapTo2DArray } from './convertPuzzleMapTo2DArray';
-import type {
-  Difficulty,
-  OptionalPuzzle2DValue,
-  Puzzle,
-  Puzzle2DIndex,
-  Puzzle2DValue,
-  PuzzleMap,
-} from './puzzleTypes';
+import { useEffect, useReducer } from 'react';
+import {
+  COLUMN_OFFSET,
+  convertPuzzleMapTo2DArray,
+} from './convertPuzzleMapTo2DArray';
+import { ValidationError } from './Errors';
+import type { Difficulty, Puzzle } from './puzzleTypes';
+import { STUB } from './stub';
+import { isValidSudoku } from './validateSudoku';
 
 type NonReadyStates =
   | {
@@ -33,38 +32,21 @@ type GameAPI =
   | {
       state: 'playing';
       puzzle: Puzzle;
-      setSquare: (
-        columnIndex: Puzzle2DIndex,
-        rowIndex: Puzzle2DIndex,
-        value: OptionalPuzzle2DValue
-      ) => void;
+      handleValidateForm: typeof handleValidateForm;
     };
 
 type Action =
   | { type: 'LOADING_GAME' }
   | { type: 'LOADED_GAME'; payload: Puzzle }
-  | { type: 'FAILED_TO_LOAD_GAME'; payload: Error }
-  | {
-      type: 'SET_SQUARE';
-      payload: {
-        rowIndex: Puzzle2DIndex;
-        columnIndex: Puzzle2DIndex;
-        value: OptionalPuzzle2DValue;
-      };
-    };
+  | { type: 'FAILED_TO_LOAD_GAME'; payload: Error };
 
 type GameReducer = (state: AllGameState, action: Action) => AllGameState;
-
-type APIResponse = {
-  difficulty: Difficulty;
-  puzzle: PuzzleMap;
-};
 
 const initialState: AllGameState = {
   state: 'initial',
 };
 
-const gameReducer: GameReducer = (state, action) => {
+const gameReducer: GameReducer = (_, action) => {
   switch (action.type) {
     case 'LOADING_GAME': {
       return { state: 'loading' };
@@ -75,31 +57,56 @@ const gameReducer: GameReducer = (state, action) => {
     case 'LOADED_GAME': {
       return { state: 'ready', puzzle: action.payload };
     }
-    case 'SET_SQUARE': {
-      if (state.state !== 'ready') {
-        throw new Error('Cannot set a square when the game has not yet begun.');
-      }
+  }
+};
 
-      const { rowIndex, columnIndex, value } = action.payload;
+type HandleValidateForm = (
+  formData: FormData
+) => { result: 'valid' } | { result: 'invalid'; reason: string; key?: string };
 
-      const nextPuzzleState = state.puzzle.map((row, currentRowIndex) => {
-        return row.map((square, currentColumnIndex) => {
-          if (
-            rowIndex === currentRowIndex &&
-            columnIndex === currentColumnIndex
-          ) {
-            return { ...square, value };
+const handleValidateForm: HandleValidateForm = (formData: FormData) => {
+  const initialValue: number[][] = [];
+  const formObject = Object.fromEntries(formData);
+  console.log(formObject);
+  try {
+    const result = Object.entries(formObject).reduce(
+      (acc, [key, valueAsString]) => {
+        const [row, column] = key.split('').map((char) => {
+          if (!parseInt(char)) {
+            // handle converting 'A' to 0...
+            return char.charCodeAt(0) - COLUMN_OFFSET;
           }
-
-          return square;
+          // handle converting '1' to 0...
+          return parseInt(char) - 1;
         });
-      });
 
-      return {
-        ...state,
-        puzzle: nextPuzzleState,
-      };
+        const value = parseInt(valueAsString.toString());
+
+        if (isNaN(value) || value < 1 || value > 9) {
+          throw new ValidationError(`Invalid value: "${valueAsString}"`, key);
+        }
+
+        if (!acc[row]) {
+          acc[row] = [];
+        }
+
+        acc[row][column] = value;
+
+        return acc;
+      },
+      initialValue
+    );
+    if (isValidSudoku(result)) {
+      return { result: 'valid' };
+    } else {
+      return { result: 'invalid', reason: 'Invalid Sudoku' };
     }
+  } catch (error) {
+    return {
+      result: 'invalid',
+      reason: error instanceof Error ? error.message : 'Unknown error',
+      key: error instanceof ValidationError ? error.key : undefined,
+    };
   }
 };
 
@@ -132,7 +139,8 @@ export const useSudoku: UseSudoku = (options) => {
           dispatchGameState({ type: 'FAILED_TO_LOAD_GAME', payload: error });
         }
 
-        const json = (await response.json()) as APIResponse;
+        // const json = (await response.json()) as APIResponse;
+        const json = STUB;
 
         dispatchGameState({
           type: 'LOADED_GAME',
@@ -159,26 +167,16 @@ export const useSudoku: UseSudoku = (options) => {
     };
   }, [difficulty]);
 
-  // TODO: is this useMemo necessary?
-  const gameAPI: GameAPI = useMemo(() => {
-    switch (gameState.state) {
-      case 'ready': {
-        return {
-          state: 'playing',
-          puzzle: gameState.puzzle,
-          setSquare: (columnIndex, rowIndex, value) => {
-            dispatchGameState({
-              type: 'SET_SQUARE',
-              payload: { rowIndex, columnIndex, value },
-            });
-          },
-        };
-      }
-      default: {
-        return gameState;
-      }
+  switch (gameState.state) {
+    case 'ready': {
+      return {
+        state: 'playing',
+        puzzle: gameState.puzzle,
+        handleValidateForm,
+      };
     }
-  }, [gameState]);
-
-  return gameAPI;
+    default: {
+      return gameState;
+    }
+  }
 };

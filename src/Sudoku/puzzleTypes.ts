@@ -27,3 +27,8 @@ export type PuzzleKey = `${PuzzleMapColumn}${PuzzleMapRow}`;
 export type PuzzleMap = Partial<Record<PuzzleKey, PuzzleMapValue>>;
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
+
+export type APIResponse = {
+  difficulty: Difficulty;
+  puzzle: PuzzleMap;
+};
