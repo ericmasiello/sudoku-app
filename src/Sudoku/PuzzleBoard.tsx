@@ -51,20 +51,25 @@ export const PuzzleBoard = (props: PuzzleBoardProps) => {
     return null;
   }
 
-  const { puzzle, handleValidateForm } = game;
-
-  const isHTMLFormElement = (element: any): element is HTMLFormElement =>
-    element instanceof HTMLFormElement;
+  const { puzzle, handleValidateForm, handleSolveForm } = game;
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
-    const target = event.target;
-    if (!isHTMLFormElement(target)) {
+    const formData = new FormData(event.currentTarget);
+    setValidState(handleValidateForm(formData));
+  };
+
+  const handleSolve: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.preventDefault();
+    const form = event.currentTarget.form;
+
+    if (!form) {
       return;
     }
-    const formData = new FormData(target);
 
-    setValidState(handleValidateForm(formData));
+    const formData = new FormData(form);
+
+    handleSolveForm(formData);
   };
 
   return (
@@ -86,7 +91,9 @@ export const PuzzleBoard = (props: PuzzleBoardProps) => {
         })}
       </div>
       <button type="submit">Validate</button>
-      <button type="submit">Solve (TODO)</button>
+      <button type="button" onClick={handleSolve}>
+        Solve
+      </button>
       {validState?.result === 'valid' && <p>You Win!</p>}
       {validState?.result === 'invalid' && <p>Invalid. Please try again.</p>}
     </form>
@@ -96,5 +103,4 @@ export const PuzzleBoard = (props: PuzzleBoardProps) => {
 /*
  TODO:
   - Convert data to just be a map with keys like the shape of the data from the API
-  - Change the UI so that its still using defaultValue and we just have a submit button to check the game
 */

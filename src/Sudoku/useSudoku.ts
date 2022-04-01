@@ -1,3 +1,4 @@
+import produce from 'immer';
 import { useEffect, useReducer } from 'react';
 import {
   COLUMN_OFFSET,
@@ -5,6 +6,7 @@ import {
 } from './convertPuzzleMapTo2DArray';
 import { ValidationError } from './Errors';
 import type { Difficulty, Puzzle } from './puzzleTypes';
+import { solve } from './solve';
 import { STUB } from './stub';
 import { isValidSudoku } from './validateSudoku';
 
@@ -18,6 +20,10 @@ type NonReadyStates =
   | {
       state: 'error';
       error: Error;
+    }
+  | {
+      state: 'end';
+      puzzle: Puzzle;
     };
 
 type AllGameState =
@@ -32,13 +38,15 @@ type GameAPI =
   | {
       state: 'playing';
       puzzle: Puzzle;
-      handleValidateForm: typeof handleValidateForm;
+      handleValidateForm: HandleValidateForm;
+      handleSolveForm: HandleSolveForm;
     };
 
 type Action =
   | { type: 'LOADING_GAME' }
   | { type: 'LOADED_GAME'; payload: Puzzle }
-  | { type: 'FAILED_TO_LOAD_GAME'; payload: Error };
+  | { type: 'FAILED_TO_LOAD_GAME'; payload: Error }
+  | { type: 'SOLVE_PUZZLE'; payload: Puzzle };
 
 type GameReducer = (state: AllGameState, action: Action) => AllGameState;
 
@@ -57,45 +65,58 @@ const gameReducer: GameReducer = (_, action) => {
     case 'LOADED_GAME': {
       return { state: 'ready', puzzle: action.payload };
     }
+    case 'SOLVE_PUZZLE': {
+      return { state: 'end', puzzle: action.payload };
+    }
   }
 };
+
+const convertFormDataTo2DArray = (
+  formData: FormData,
+  handleInvalidValue?: (key: string, value: string) => void
+): number[][] => {
+  const initialValue: number[][] = [];
+  const formObject = Object.fromEntries(formData);
+  return Object.entries(formObject).reduce((acc, [key, valueAsString]) => {
+    const [row, column] = key.split('').map((char) => {
+      if (!parseInt(char)) {
+        // handle converting 'A' to 0...
+        return char.charCodeAt(0) - COLUMN_OFFSET;
+      }
+      // handle converting '1' to 0...
+      return parseInt(char) - 1;
+    });
+
+    let value = parseInt(valueAsString.toString());
+
+    if (isNaN(value) || value < 1 || value > 9) {
+      handleInvalidValue?.(key, valueAsString.toString());
+
+      value = 0;
+    }
+
+    if (!acc[row]) {
+      acc[row] = [];
+    }
+
+    acc[row][column] = value;
+
+    return acc;
+  }, initialValue);
+};
+
+type HandleSolveForm = (formData: FormData) => void;
 
 type HandleValidateForm = (
   formData: FormData
 ) => { result: 'valid' } | { result: 'invalid'; reason: string; key?: string };
 
-const handleValidateForm: HandleValidateForm = (formData: FormData) => {
-  const initialValue: number[][] = [];
-  const formObject = Object.fromEntries(formData);
-  console.log(formObject);
+const handleValidateForm: HandleValidateForm = (formData) => {
   try {
-    const result = Object.entries(formObject).reduce(
-      (acc, [key, valueAsString]) => {
-        const [row, column] = key.split('').map((char) => {
-          if (!parseInt(char)) {
-            // handle converting 'A' to 0...
-            return char.charCodeAt(0) - COLUMN_OFFSET;
-          }
-          // handle converting '1' to 0...
-          return parseInt(char) - 1;
-        });
+    const result = convertFormDataTo2DArray(formData, (key, value) => {
+      throw new ValidationError(`Invalid value: "${value}"`, key);
+    });
 
-        const value = parseInt(valueAsString.toString());
-
-        if (isNaN(value) || value < 1 || value > 9) {
-          throw new ValidationError(`Invalid value: "${valueAsString}"`, key);
-        }
-
-        if (!acc[row]) {
-          acc[row] = [];
-        }
-
-        acc[row][column] = value;
-
-        return acc;
-      },
-      initialValue
-    );
     if (isValidSudoku(result)) {
       return { result: 'valid' };
     } else {
@@ -167,12 +188,26 @@ export const useSudoku: UseSudoku = (options) => {
     };
   }, [difficulty]);
 
+  const handleSolveForm: HandleSolveForm = (formData) => {
+    const input = convertFormDataTo2DArray(formData);
+    const result = produce(input, (draftInput) => {
+      // FIXME: `solve()` treats the 2D array differently - its [rows][columns], not [columns][rows]
+      solve(draftInput);
+    });
+
+    console.log('solved board?', input, result);
+
+    throw new Error('FIXME: need to convert result back into a Puzzle');
+    // dispatchGameState({ type: 'SOLVE_PUZZLE', payload: result as unknown as Puzzle });
+  };
+
   switch (gameState.state) {
     case 'ready': {
       return {
         state: 'playing',
         puzzle: gameState.puzzle,
         handleValidateForm,
+        handleSolveForm,
       };
     }
     default: {
