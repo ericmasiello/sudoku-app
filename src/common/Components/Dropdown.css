@@ -1,4 +1,33 @@
 .dropdown {
-  padding-top: 0.435rem;
-  padding-bottom: 0.44rem;
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown::after {
+  content: '';
+  display: block;
+  width: 0.8em;
+  height: 0.5em;
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  background-color: var(--color-gray-3);
+  clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+}
+
+.dropdown__select {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  cursor: inherit;
+  line-height: inherit;
+  z-index: 1;
+  text-transform: inherit;
 }
