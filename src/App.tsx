@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { PuzzleBoard } from './Sudoku';
-import type { Difficulty } from './Sudoku';
 import { useLogging } from './Logging';
 import { ErrorFallback } from './ErrorBoundary';
 import './App.css';
 
 const App = () => {
   useLogging();
-  const [difficulty, setDifficulty] = useState<Difficulty>('easy');
 
   return (
-    <div className="App">
-      <header className="App-header">Sudoku App</header>
+    <div>
+      <header className="header">
+        <h1>Sudoku App</h1>
+      </header>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <PuzzleBoard difficulty={difficulty} />
+        <PuzzleBoard difficulty="easy" loader={<div>Loading...</div>} />
       </ErrorBoundary>
     </div>
   );

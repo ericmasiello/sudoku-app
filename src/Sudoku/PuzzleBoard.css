@@ -2,7 +2,7 @@
   display: grid;
   /* TODO: refactor to retain a square shape but not hardcode fixed numbers */
   height: 500px;
-  width: 500px;
+  max-width: 500px;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
   margin: auto;
@@ -40,6 +40,13 @@
   color: var(--puzzle-highlight-text-color);
 }
 
+.puzzle-square:focus::selection {
+  background-color: var(--puzzle-brand-color);
+}
+.puzzle-square:focus::-moz-selection {
+  background-color: var(--puzzle-brand-color);
+}
+
 .puzzle-square--invalid {
   border-color: red;
   background-color: #c8a27c;
@@ -59,9 +66,8 @@
   text-transform: uppercase;
   font-size: 1.1rem;
   background-color: var(--button-bg-color);
-  border-color: var(--puzzle-highlight-cell-color);
   color: var(--puzzle-highlight-cell-color);
-  border-style: solid;
   padding: 0.5rem 1rem;
+  border: 2px solid var(--puzzle-highlight-cell-color);
   border-radius: 3px;
 }

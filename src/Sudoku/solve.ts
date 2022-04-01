@@ -7,6 +7,7 @@ const nextEmptySpot = (board: number[][]) => {
   return [-1, -1];
 };
 
+// TODO: can this be repurposed for the validate function?
 const checkValue = (
   board: number[][],
   row: number,

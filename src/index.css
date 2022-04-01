@@ -1,4 +1,4 @@
-/* TODO: clean up these colors */
+/* TODO: clean up these colors: just give them brand values */
 :root {
   --bg-color: #efefed;
   --type-color: #545253;
@@ -10,7 +10,6 @@
   --puzzle-highlight-text-color: var(--bg-color);
   --puzzle-brand-color: #2b9399;
   --button-bg-color: var(--bg-color);
-  --error: ;
 }
 
 html {

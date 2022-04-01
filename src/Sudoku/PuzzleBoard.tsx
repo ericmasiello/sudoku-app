@@ -6,6 +6,7 @@ import type {
 } from './puzzleTypes';
 import { useSudoku } from './useSudoku';
 import './PuzzleBoard.css';
+import { DifficultySelect } from './DifficultySelect';
 
 type PuzzleSquareProps = {
   value: PuzzleSquareType;
@@ -42,14 +43,19 @@ const PuzzleControls: React.FC<PuzzleControlsProps> = (props) => {
 
 type PuzzleBoardProps = {
   difficulty: Difficulty;
+  loader: JSX.Element;
 };
 
 export const PuzzleBoard = (props: PuzzleBoardProps) => {
-  const { difficulty } = props;
-  const game = useSudoku({ difficulty });
+  const { difficulty: initialDifficulty, loader } = props;
+  const game = useSudoku({ initialDifficulty });
   // TODO: make this return an array of items with errors, not just the first
   const [validState, setValidState] =
     useState<ReturnType<typeof handleValidateForm>>();
+
+  if (game.state === 'loading') {
+    return loader;
+  }
 
   if (game.state === 'error') {
     throw game.error;
@@ -59,7 +65,13 @@ export const PuzzleBoard = (props: PuzzleBoardProps) => {
     return null;
   }
 
-  const { puzzle, handleValidateForm, handleSolveForm } = game;
+  const {
+    puzzle,
+    handleValidateForm,
+    handleSolveForm,
+    handleChangeDifficulty,
+    difficulty,
+  } = game;
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
@@ -99,6 +111,10 @@ export const PuzzleBoard = (props: PuzzleBoardProps) => {
         })}
       </div>
       <PuzzleControls>
+        <DifficultySelect
+          value={difficulty}
+          onChange={handleChangeDifficulty}
+        />
         <button className="button" type="submit">
           Validate
         </button>

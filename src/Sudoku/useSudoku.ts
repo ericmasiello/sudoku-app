@@ -13,16 +13,20 @@ import { isValidSudoku } from './validateSudoku';
 type NonReadyStates =
   | {
       state: 'initial';
+      difficulty: Difficulty;
     }
   | {
       state: 'loading';
+      difficulty: Difficulty;
     }
   | {
       state: 'error';
+      difficulty: Difficulty;
       error: Error;
     }
   | {
       state: 'end';
+      difficulty: Difficulty;
       puzzle: Puzzle;
     };
 
@@ -30,6 +34,7 @@ type AllGameState =
   | NonReadyStates
   | {
       state: 'ready';
+      difficulty: Difficulty;
       puzzle: Puzzle;
     };
 
@@ -37,7 +42,9 @@ type GameAPI =
   | NonReadyStates
   | {
       state: 'playing';
+      difficulty: Difficulty;
       puzzle: Puzzle;
+      handleChangeDifficulty: (difficulty: Difficulty) => void;
       handleValidateForm: HandleValidateForm;
       handleSolveForm: HandleSolveForm;
     };
@@ -46,27 +53,32 @@ type Action =
   | { type: 'LOADING_GAME' }
   | { type: 'LOADED_GAME'; payload: Puzzle }
   | { type: 'FAILED_TO_LOAD_GAME'; payload: Error }
+  | { type: 'CHANGE_DIFFICULTY'; payload: Difficulty }
   | { type: 'SOLVE_PUZZLE'; payload: Puzzle };
 
 type GameReducer = (state: AllGameState, action: Action) => AllGameState;
 
 const initialState: AllGameState = {
   state: 'initial',
+  difficulty: 'easy',
 };
 
-const gameReducer: GameReducer = (_, action) => {
+const gameReducer: GameReducer = (currentState, action) => {
   switch (action.type) {
     case 'LOADING_GAME': {
-      return { state: 'loading' };
+      return { ...currentState, state: 'loading' };
     }
     case 'FAILED_TO_LOAD_GAME': {
-      return { state: 'error', error: action.payload };
+      return { ...currentState, state: 'error', error: action.payload };
     }
     case 'LOADED_GAME': {
-      return { state: 'ready', puzzle: action.payload };
+      return { ...currentState, state: 'ready', puzzle: action.payload };
+    }
+    case 'CHANGE_DIFFICULTY': {
+      return { ...currentState, difficulty: action.payload };
     }
     case 'SOLVE_PUZZLE': {
-      return { state: 'end', puzzle: action.payload };
+      return { ...currentState, state: 'end', puzzle: action.payload };
     }
   }
 };
@@ -131,11 +143,14 @@ const handleValidateForm: HandleValidateForm = (formData) => {
   }
 };
 
-type UseSudoku = ({ difficulty }: { difficulty: Difficulty }) => GameAPI;
+type UseSudoku = (options: { initialDifficulty: Difficulty }) => GameAPI;
 
 export const useSudoku: UseSudoku = (options) => {
-  const { difficulty } = options;
-  const [gameState, dispatchGameState] = useReducer(gameReducer, initialState);
+  const { initialDifficulty } = options;
+  const [gameState, dispatchGameState] = useReducer(gameReducer, {
+    ...initialState,
+    difficulty: initialDifficulty,
+  });
 
   useEffect(() => {
     dispatchGameState({ type: 'LOADING_GAME' });
@@ -148,7 +163,7 @@ export const useSudoku: UseSudoku = (options) => {
     const execute = async () => {
       try {
         const response = await fetch(
-          `https://vast-chamber-17969.herokuapp.com/generate?difficulty=${difficulty}`,
+          `https://vast-chamber-17969.herokuapp.com/generate?difficulty=${gameState.difficulty}`,
           { signal: abortController?.signal }
         );
 
@@ -186,7 +201,7 @@ export const useSudoku: UseSudoku = (options) => {
     return () => {
       abortController?.abort();
     };
-  }, [difficulty]);
+  }, [gameState.difficulty]);
 
   const handleSolveForm: HandleSolveForm = (formData) => {
     const input = convertFormDataTo2DArray(formData);
@@ -205,9 +220,13 @@ export const useSudoku: UseSudoku = (options) => {
     case 'ready': {
       return {
         state: 'playing',
+        difficulty: gameState.difficulty,
         puzzle: gameState.puzzle,
         handleValidateForm,
         handleSolveForm,
+        handleChangeDifficulty: (difficulty) => {
+          dispatchGameState({ type: 'CHANGE_DIFFICULTY', payload: difficulty });
+        },
       };
     }
     default: {
