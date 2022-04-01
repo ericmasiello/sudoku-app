@@ -24,6 +24,8 @@ const PuzzleSquare = (props: PuzzleSquareProps) => {
       <input
         id={square.id}
         type="text"
+        maxLength={1}
+        inputMode="numeric"
         name={square.id}
         defaultValue={square.value === null ? '' : square.value}
         className={classNames('puzzle-square', {
