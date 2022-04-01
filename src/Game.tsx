@@ -27,9 +27,6 @@ export const Game = () => {
   if (gameAPI.state === 'gameOver') {
     return (
       <div className="game">
-        <p className="game__status" role="alert" aria-live="polite">
-          {gameAPI.message}
-        </p>
         <Puzzle puzzle={gameAPI.solution} disabled className="game__puzzle" />
         <Button
           type="button"
@@ -39,6 +36,9 @@ export const Game = () => {
         >
           New Game
         </Button>
+        <p className="game__status" role="alert" aria-live="polite">
+          {gameAPI.message}
+        </p>
       </div>
     );
   }
