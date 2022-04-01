@@ -1,10 +1,10 @@
-import { Loading } from './common/Loading';
 import { useSudoku, Puzzle, Difficulty } from './Sudoku';
-import './Game.css';
-import { Button } from './common/Button';
-import { Dropdown } from './common/Dropdown';
+import { Loading } from './common/Components/Loading';
+import { Button } from './common/Components/Button';
+import { Dropdown } from './common/Components/Dropdown';
 import { convertFormToPuzzle } from './Sudoku';
-import { useThrowToErrorBoundary } from './hooks/useThrowToErrorBoundary';
+import { useThrowToErrorBoundary } from './common/hooks/useThrowToErrorBoundary';
+import './Game.css';
 
 const difficultyOptions: Difficulty[] = ['easy', 'medium', 'hard'];
 
