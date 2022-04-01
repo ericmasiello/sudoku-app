@@ -33,6 +33,13 @@ const PuzzleSquare = (props: PuzzleSquareProps) => {
   );
 };
 
+type PuzzleControlsProps = React.HTMLProps<HTMLDivElement>;
+
+const PuzzleControls: React.FC<PuzzleControlsProps> = (props) => {
+  const { className, ...rest } = props;
+  return <div className={classNames('puzzle-controls', className)} {...rest} />;
+};
+
 type PuzzleBoardProps = {
   difficulty: Difficulty;
 };
@@ -40,6 +47,7 @@ type PuzzleBoardProps = {
 export const PuzzleBoard = (props: PuzzleBoardProps) => {
   const { difficulty } = props;
   const game = useSudoku({ difficulty });
+  // TODO: make this return an array of items with errors, not just the first
   const [validState, setValidState] =
     useState<ReturnType<typeof handleValidateForm>>();
 
@@ -90,10 +98,15 @@ export const PuzzleBoard = (props: PuzzleBoardProps) => {
           });
         })}
       </div>
-      <button type="submit">Validate</button>
-      <button type="button" onClick={handleSolve}>
-        Solve
-      </button>
+      <PuzzleControls>
+        <button className="button" type="submit">
+          Validate
+        </button>
+        <button className="button" type="button" onClick={handleSolve}>
+          Solve
+        </button>
+      </PuzzleControls>
+
       {validState?.result === 'valid' && <p>You Win!</p>}
       {validState?.result === 'invalid' && <p>Invalid. Please try again.</p>}
     </form>
