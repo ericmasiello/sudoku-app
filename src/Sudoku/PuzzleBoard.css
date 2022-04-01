@@ -1,0 +1,73 @@
+.puzzle-board {
+  display: grid;
+  /* TODO: refactor to retain a square shape but not hardcode fixed numbers */
+  height: 500px;
+  max-width: 500px;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  margin: auto;
+  border-width: 2px 0 2px 2px;
+  border-style: solid;
+  border-color: var(--puzzle-border-color);
+}
+
+.puzzle-board > :nth-child(3n) {
+  border-right: 2px solid var(--puzzle-border-color);
+}
+
+.puzzle-board > :nth-child(n + 19):not(:nth-child(n + 28)),
+.puzzle-board > :nth-child(n + 37):not(:nth-child(n + 46)),
+.puzzle-board > :nth-child(n + 55):not(:nth-child(n + 64)) {
+  border-bottom: 2px solid var(--puzzle-border-color);
+}
+
+.puzzle-square {
+  background-color: var(--puzzle-square-color);
+  border: 1px solid var(--puzzle-line-color);
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.puzzle-square:hover {
+  color: var(--puzzle-brand-color);
+}
+
+.puzzle-square:focus {
+  background-color: var(--puzzle-highlight-cell-color);
+  color: var(--puzzle-highlight-text-color);
+}
+
+.puzzle-square:focus::selection {
+  background-color: var(--puzzle-brand-color);
+}
+.puzzle-square:focus::-moz-selection {
+  background-color: var(--puzzle-brand-color);
+}
+
+.puzzle-square--invalid {
+  border-color: red;
+  background-color: #c8a27c;
+}
+
+.puzzle-controls {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.puzzle-controls > * {
+  margin: 0.5rem;
+}
+
+.button {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  background-color: var(--button-bg-color);
+  color: var(--puzzle-highlight-cell-color);
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--puzzle-highlight-cell-color);
+  border-radius: 3px;
+}

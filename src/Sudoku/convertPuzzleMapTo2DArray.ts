@@ -6,6 +6,7 @@ import type {
   PuzzleMapColumn,
   PuzzleMapRow,
   PuzzleKey,
+  PuzzleSquare,
 } from './puzzleTypes';
 
 const isPuzzleIndex = (value: number): value is Puzzle2DIndex => {
@@ -14,6 +15,9 @@ const isPuzzleIndex = (value: number): value is Puzzle2DIndex => {
 const isPuzzleValue = (value: number): value is Puzzle2DValue => {
   return value >= 1 && value <= 9;
 };
+
+export const COLUMN_OFFSET = 'A'.charCodeAt(0);
+
 const puzzleColumnToIndex = (column: PuzzleMapColumn): Puzzle2DIndex => {
   /*
    * 'A'.charCodeAt(0) === 65
@@ -28,8 +32,8 @@ const puzzleColumnToIndex = (column: PuzzleMapColumn): Puzzle2DIndex => {
    * // column === 'B'
    * column.charCodeAt(0) - 'A'.charCodeAt(0) === 1
    */
-  const offset = 'A'.charCodeAt(0);
-  const result = column.charCodeAt(0) - offset;
+
+  const result = column.charCodeAt(0) - COLUMN_OFFSET;
   if (!isPuzzleIndex(result)) {
     throw new Error(`Invalid column with value "${column}"`);
   }
@@ -47,14 +51,37 @@ const isValidPuzzleKey = (key: string): key is PuzzleKey => {
   return !!key.match(/^[A-I]{1}[1-9]{1}$/);
 };
 
+const convertToValidIds = (
+  puzzle2DArray: { value: null; id: 'UNKNOWN' }[][]
+): Puzzle => {
+  return puzzle2DArray.map((row, rowIndex) => {
+    return row.map((square, columnIndex): PuzzleSquare => {
+      const key =
+        String.fromCharCode(rowIndex + COLUMN_OFFSET) + (columnIndex + 1);
+      if (!isValidPuzzleKey(key)) {
+        throw new Error(`Invalid key with value "${key}"`);
+      }
+
+      return {
+        id: key,
+        value: square.value,
+      };
+    });
+  });
+};
+
 export const convertPuzzleMapTo2DArray = (puzzleMap: PuzzleMap): Puzzle => {
   /*
    * Creates an array of 9 columns and the fills the array with 9 rows.
-   * All values are initialized to `null`.
+   * All values are initialized to `{ value: null, id: 'UNKNOWN' }`.
+   *
+   * Then we pass the array to the `convertToValidIds` to properly initialize each `id`
    */
-  const initialPuzzle: Puzzle = new Array(9)
-    .fill(null)
-    .map(() => new Array(9).fill(null));
+  const initialPuzzle: Puzzle = convertToValidIds(
+    new Array(9)
+      .fill(null)
+      .map(() => new Array(9).fill({ value: null, id: 'UNKNOWN' }))
+  );
   /*
    * Map over the puzzle map object,
    * convert the keys (e.g. 'A1') to a numeric column and row index,
@@ -76,7 +103,8 @@ export const convertPuzzleMapTo2DArray = (puzzleMap: PuzzleMap): Puzzle => {
     const columnIndex = puzzleColumnToIndex(column);
     const rowIndex = convertPuzzleRowToIndex(row);
 
-    acc[columnIndex][rowIndex] = puzzleValue;
+    acc[columnIndex][rowIndex].id = key;
+    acc[columnIndex][rowIndex].value = puzzleValue;
 
     return acc;
   }, initialPuzzle);

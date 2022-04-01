@@ -1,58 +1,156 @@
+import produce from 'immer';
 import { useEffect, useReducer } from 'react';
-import { convertPuzzleMapTo2DArray } from './convertPuzzleMapTo2DArray';
-import type { Difficulty, Puzzle, PuzzleMap } from './puzzleTypes';
+import {
+  COLUMN_OFFSET,
+  convertPuzzleMapTo2DArray,
+} from './convertPuzzleMapTo2DArray';
+import { ValidationError } from './Errors';
+import type { Difficulty, Puzzle } from './puzzleTypes';
+import { solve } from './solve';
+import { STUB } from './stub';
+import { isValidSudoku } from './validateSudoku';
 
-type GameState =
+type NonReadyStates =
   | {
       state: 'initial';
+      difficulty: Difficulty;
     }
   | {
       state: 'loading';
-    }
-  | {
-      state: 'playing';
-      puzzle: Puzzle;
+      difficulty: Difficulty;
     }
   | {
       state: 'error';
+      difficulty: Difficulty;
       error: Error;
+    }
+  | {
+      state: 'end';
+      difficulty: Difficulty;
+      puzzle: Puzzle;
+    };
+
+type AllGameState =
+  | NonReadyStates
+  | {
+      state: 'ready';
+      difficulty: Difficulty;
+      puzzle: Puzzle;
+    };
+
+type GameAPI =
+  | NonReadyStates
+  | {
+      state: 'playing';
+      difficulty: Difficulty;
+      puzzle: Puzzle;
+      handleChangeDifficulty: (difficulty: Difficulty) => void;
+      handleValidateForm: HandleValidateForm;
+      handleSolveForm: HandleSolveForm;
     };
 
 type Action =
   | { type: 'LOADING_GAME' }
-  | { type: 'LOADED_GAME'; puzzle: Puzzle }
-  | { type: 'FAILED_TO_LOAD_GAME'; error: Error };
+  | { type: 'LOADED_GAME'; payload: Puzzle }
+  | { type: 'FAILED_TO_LOAD_GAME'; payload: Error }
+  | { type: 'CHANGE_DIFFICULTY'; payload: Difficulty }
+  | { type: 'SOLVE_PUZZLE'; payload: Puzzle };
 
-type GameReducer = (state: GameState, action: Action) => GameState;
+type GameReducer = (state: AllGameState, action: Action) => AllGameState;
 
-type APIResponse = {
-  difficulty: Difficulty;
-  puzzle: PuzzleMap;
-};
-
-const initialState: GameState = {
+const initialState: AllGameState = {
   state: 'initial',
+  difficulty: 'easy',
 };
 
-const gameReducer: GameReducer = (state, action) => {
+const gameReducer: GameReducer = (currentState, action) => {
   switch (action.type) {
     case 'LOADING_GAME': {
-      return { state: 'loading' };
+      return { ...currentState, state: 'loading' };
     }
     case 'FAILED_TO_LOAD_GAME': {
-      return { state: 'error', error: action.error };
+      return { ...currentState, state: 'error', error: action.payload };
     }
     case 'LOADED_GAME': {
-      return { state: 'playing', puzzle: action.puzzle };
+      return { ...currentState, state: 'ready', puzzle: action.payload };
+    }
+    case 'CHANGE_DIFFICULTY': {
+      return { ...currentState, difficulty: action.payload };
+    }
+    case 'SOLVE_PUZZLE': {
+      return { ...currentState, state: 'end', puzzle: action.payload };
     }
   }
 };
 
-type UseSudoku = ({ difficulty }: { difficulty: Difficulty }) => void;
+const convertFormDataTo2DArray = (
+  formData: FormData,
+  handleInvalidValue?: (key: string, value: string) => void
+): number[][] => {
+  const initialValue: number[][] = [];
+  const formObject = Object.fromEntries(formData);
+  return Object.entries(formObject).reduce((acc, [key, valueAsString]) => {
+    const [row, column] = key.split('').map((char) => {
+      if (!parseInt(char)) {
+        // handle converting 'A' to 0...
+        return char.charCodeAt(0) - COLUMN_OFFSET;
+      }
+      // handle converting '1' to 0...
+      return parseInt(char) - 1;
+    });
+
+    let value = parseInt(valueAsString.toString());
+
+    if (isNaN(value) || value < 1 || value > 9) {
+      handleInvalidValue?.(key, valueAsString.toString());
+
+      value = 0;
+    }
+
+    if (!acc[row]) {
+      acc[row] = [];
+    }
+
+    acc[row][column] = value;
+
+    return acc;
+  }, initialValue);
+};
+
+type HandleSolveForm = (formData: FormData) => void;
+
+type HandleValidateForm = (
+  formData: FormData
+) => { result: 'valid' } | { result: 'invalid'; reason: string; key?: string };
+
+const handleValidateForm: HandleValidateForm = (formData) => {
+  try {
+    const result = convertFormDataTo2DArray(formData, (key, value) => {
+      throw new ValidationError(`Invalid value: "${value}"`, key);
+    });
+
+    if (isValidSudoku(result)) {
+      return { result: 'valid' };
+    } else {
+      return { result: 'invalid', reason: 'Invalid Sudoku' };
+    }
+  } catch (error) {
+    return {
+      result: 'invalid',
+      reason: error instanceof Error ? error.message : 'Unknown error',
+      key: error instanceof ValidationError ? error.key : undefined,
+    };
+  }
+};
+
+type UseSudoku = (options: { initialDifficulty: Difficulty }) => GameAPI;
 
 export const useSudoku: UseSudoku = (options) => {
-  const { difficulty } = options;
-  const [gameState, dispatchGameState] = useReducer(gameReducer, initialState);
+  const { initialDifficulty } = options;
+  const [gameState, dispatchGameState] = useReducer(gameReducer, {
+    ...initialState,
+    difficulty: initialDifficulty,
+  });
 
   useEffect(() => {
     dispatchGameState({ type: 'LOADING_GAME' });
@@ -65,7 +163,7 @@ export const useSudoku: UseSudoku = (options) => {
     const execute = async () => {
       try {
         const response = await fetch(
-          `https://vast-chamber-17969.herokuapp.com/generate?difficulty=${difficulty}`,
+          `https://vast-chamber-17969.herokuapp.com/generate?difficulty=${gameState.difficulty}`,
           { signal: abortController?.signal }
         );
 
@@ -74,14 +172,15 @@ export const useSudoku: UseSudoku = (options) => {
           const error = new Error(
             `Failed to load game. Failed with response: ${response.statusText})`
           );
-          dispatchGameState({ type: 'FAILED_TO_LOAD_GAME', error });
+          dispatchGameState({ type: 'FAILED_TO_LOAD_GAME', payload: error });
         }
 
-        const json = (await response.json()) as APIResponse;
+        // const json = (await response.json()) as APIResponse;
+        const json = STUB;
 
         dispatchGameState({
           type: 'LOADED_GAME',
-          puzzle: convertPuzzleMapTo2DArray(json.puzzle),
+          payload: convertPuzzleMapTo2DArray(json.puzzle),
         });
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
@@ -93,7 +192,7 @@ export const useSudoku: UseSudoku = (options) => {
 
         dispatchGameState({
           type: 'FAILED_TO_LOAD_GAME',
-          error: error instanceof Error ? error : new Error('Unknown error'),
+          payload: error instanceof Error ? error : new Error('Unknown error'),
         });
       }
     };
@@ -102,7 +201,36 @@ export const useSudoku: UseSudoku = (options) => {
     return () => {
       abortController?.abort();
     };
-  }, [difficulty]);
+  }, [gameState.difficulty]);
 
-  return gameState;
+  const handleSolveForm: HandleSolveForm = (formData) => {
+    const input = convertFormDataTo2DArray(formData);
+    const result = produce(input, (draftInput) => {
+      // FIXME: `solve()` treats the 2D array differently - its [rows][columns], not [columns][rows]
+      solve(draftInput);
+    });
+
+    console.log('solved board?', input, result);
+
+    throw new Error('FIXME: need to convert result back into a Puzzle');
+    // dispatchGameState({ type: 'SOLVE_PUZZLE', payload: result as unknown as Puzzle });
+  };
+
+  switch (gameState.state) {
+    case 'ready': {
+      return {
+        state: 'playing',
+        difficulty: gameState.difficulty,
+        puzzle: gameState.puzzle,
+        handleValidateForm,
+        handleSolveForm,
+        handleChangeDifficulty: (difficulty) => {
+          dispatchGameState({ type: 'CHANGE_DIFFICULTY', payload: difficulty });
+        },
+      };
+    }
+    default: {
+      return gameState;
+    }
+  }
 };

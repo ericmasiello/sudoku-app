@@ -1,8 +1,39 @@
+/* TODO: clean up these colors: just give them brand values */
+:root {
+  --bg-color: #efefed;
+  --type-color: #545253;
+  --type-face: 'Mukta', sans-serif;
+  --puzzle-border-color: #7b7977;
+  --puzzle-square-color: #fff;
+  --puzzle-line-color: #b1b2af;
+  --puzzle-highlight-cell-color: #545251;
+  --puzzle-highlight-text-color: var(--bg-color);
+  --puzzle-brand-color: #2b9399;
+  --button-bg-color: var(--bg-color);
+}
+
+html {
+  box-sizing: border-box;
+  background-color: var(--bg-color);
+  color: var(--type-color);
+  font-family: var(--type-face);
+}
+
+input,
+select,
+button {
+  color: inherit;
+  font-family: inherit;
+}
+
+*,
+::before,
+::after {
+  box-sizing: inherit;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
