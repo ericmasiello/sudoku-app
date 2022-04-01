@@ -1,11 +1,11 @@
 .header {
   text-align: center;
-  background-color: var(--puzzle-highlight-cell-color);
+  background-color: var(--color-gray-4);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(0.625rem + 2vmin);
-  color: var(--puzzle-square-color);
+  color: var(--color-white);
   margin-bottom: 1rem;
 }

@@ -1,0 +1,15 @@
+.game {
+  text-align: center;
+}
+
+.game__puzzle {
+  margin-bottom: 1rem;
+}
+
+.game__controls > *:not(:last-child) {
+  margin-right: 0.5rem;
+}
+
+.game__status {
+  font-size: 1.4rem;
+}
