@@ -1,6 +1,6 @@
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { PuzzleBoard } from './Sudoku';
+import { PuzzleBoard } from './Sudoku.old';
 import { useLogging } from './Logging';
 import { ErrorFallback } from './ErrorBoundary';
 import './App.css';
