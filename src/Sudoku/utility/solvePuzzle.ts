@@ -1,3 +1,6 @@
+/*
+ * Credit: This solution is heavily inspired by this video https://www.youtube.com/watch?v=3_50lwD7ygE
+ */
 type BoardValue = number | null;
 export type Board = Array<Array<BoardValue>>;
 
@@ -113,7 +116,7 @@ function validBoard(board: Board) {
 function rowsGood(board: Board) {
   for (let i = 0; i < 9; i++) {
     const values: BoardValue[] = [];
-    for (var j = 0; j < 9; j++) {
+    for (let j = 0; j < 9; j++) {
       const value = board[i][j];
       if (values.includes(value)) {
         return false;
@@ -129,7 +132,7 @@ function rowsGood(board: Board) {
 function columnsGood(board: Board) {
   for (let i = 0; i < 9; i++) {
     const values: BoardValue[] = [];
-    for (var j = 0; j < 9; j++) {
+    for (let j = 0; j < 9; j++) {
       const value = board[j][i];
       if (values.includes(value)) {
         return false;
