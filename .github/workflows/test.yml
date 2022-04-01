@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Validate Build
 on: push
 jobs:
   tests:
@@ -11,3 +11,11 @@ jobs:
         run: npm run type-check
       - name: Run tests
         run: npm run test
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install modules
+        run: npm ci
+      - name: Build
+        run: npm run build
