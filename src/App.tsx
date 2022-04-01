@@ -9,8 +9,8 @@ const App = () => {
   useLogging();
 
   return (
-    <div>
-      <header className="header">
+    <div className="app">
+      <header className="app__header">
         <h1>Sudoku App</h1>
       </header>
       <ErrorBoundary FallbackComponent={ErrorFallback}>

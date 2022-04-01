@@ -1,4 +1,8 @@
-.header {
+.app {
+  padding-bottom: 2rem;
+}
+
+.app__header {
   text-align: center;
   background-color: var(--color-gray-4);
   display: flex;
