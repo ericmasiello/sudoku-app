@@ -1,6 +1,6 @@
-import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { PuzzleBoard } from './Sudoku';
+// import { PuzzleBoard } from './Sudoku.old';
+import { Game } from './Game';
 import { useLogging } from './Logging';
 import { ErrorFallback } from './ErrorBoundary';
 import './App.css';
@@ -9,12 +9,12 @@ const App = () => {
   useLogging();
 
   return (
-    <div>
-      <header className="header">
+    <div className="app">
+      <header className="app__header">
         <h1>Sudoku App</h1>
       </header>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <PuzzleBoard difficulty="easy" loader={<div>Loading...</div>} />
+        <Game />
       </ErrorBoundary>
     </div>
   );

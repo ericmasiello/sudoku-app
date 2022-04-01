@@ -1,0 +1,45 @@
+.puzzle {
+  display: grid;
+  grid-auto-flow: column;
+  height: 31.25rem;
+  max-width: 31.25rem;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  margin: auto;
+  border: 2px solid var(--color-gray-2);
+}
+
+.puzzle > :nth-child(3n):not(:nth-child(9n)) {
+  border-bottom: 2px solid var(--color-gray-2);
+}
+
+.puzzle > :nth-child(19),
+.puzzle > :nth-child(20),
+.puzzle > :nth-child(21),
+.puzzle > :nth-child(22),
+.puzzle > :nth-child(23),
+.puzzle > :nth-child(24),
+.puzzle > :nth-child(25),
+.puzzle > :nth-child(26),
+.puzzle > :nth-child(27),
+.puzzle > :nth-child(46),
+.puzzle > :nth-child(47),
+.puzzle > :nth-child(48),
+.puzzle > :nth-child(49),
+.puzzle > :nth-child(50),
+.puzzle > :nth-child(51),
+.puzzle > :nth-child(52),
+.puzzle > :nth-child(53),
+.puzzle > :nth-child(54) {
+  border-right: 2px solid var(--color-gray-2);
+}
+
+/* .puzzle > :nth-child(3n) {
+  border-right: 2px solid var(--color-gray-2);
+}
+
+.puzzle > :nth-child(n + 19):not(:nth-child(n + 28)),
+.puzzle > :nth-child(n + 37):not(:nth-child(n + 46)),
+.puzzle > :nth-child(n + 55):not(:nth-child(n + 64)) {
+  border-bottom: 2px solid var(--color-gray-2);
+} */

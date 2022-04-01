@@ -1,4 +1,4 @@
-export { DifficultySelect } from './DifficultySelect';
+export { Puzzle } from './components/Puzzle';
 export { useSudoku } from './useSudoku';
-export { PuzzleBoard } from './PuzzleBoard';
-export type { Difficulty } from './puzzleTypes';
+export { convertFormToPuzzle } from './utility';
+export type { Difficulty } from './sudokuTypes';
