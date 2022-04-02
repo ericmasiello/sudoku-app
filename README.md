@@ -1,4 +1,6 @@
-# Getting Started with Create React App
+# Sudoku App
+
+This sudoku game uses the [Sudoku Generator API](https://vast-chamber-17969.herokuapp.com/generate?difficulty=easy).
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
