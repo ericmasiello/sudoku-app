@@ -6,7 +6,7 @@ import { fetchPuzzle } from './client/sudokuClient';
 import type { Board, SolutionResult } from './utility/solvePuzzle';
 // @ts-ignore
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import SolvePuzzleWorker from 'worker-loader!./utility/solvePuzzleWorker';
+import SolvePuzzleWorker from 'worker-loader!./utility/solvePuzzle.worker';
 import { convert2DArrayToPuzzle, convertPuzzleTo2DArray } from './utility';
 
 const solvePuzzleWorker = Comlink.wrap<{

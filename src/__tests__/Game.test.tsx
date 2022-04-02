@@ -4,6 +4,23 @@ import { Game } from '../Game';
 import { server } from '../setupTests';
 import { ErrorBoundary } from 'react-error-boundary';
 import userEvent from '@testing-library/user-event';
+import type { Puzzle } from '../Sudoku/sudokuTypes';
+
+jest.mock('comlink', () => {
+  const { convertPuzzleTo2DArray } = jest.requireActual('../Sudoku/utility');
+  return {
+    wrap() {
+      return {
+        async solve(puzzle: Puzzle) {
+          return {
+            state: 'solved',
+            board: convertPuzzleTo2DArray(puzzle),
+          };
+        },
+      };
+    },
+  };
+});
 
 // silence console.error
 jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -88,7 +105,7 @@ it('should solve the game when you give up', async () => {
   userEvent.click(screen.getByText(/i give up/i));
 
   // very the alert message appears
-  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+  expect((await screen.findByRole('alert')).textContent).toMatchInlineSnapshot(
     `"Here is the solution. Try again!"`
   );
 
