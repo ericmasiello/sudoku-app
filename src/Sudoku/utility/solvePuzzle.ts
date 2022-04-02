@@ -13,6 +13,9 @@ export type SolutionResult =
       board: Board;
     };
 
+/*
+ * Public API that takes a Board and returns a SolutionResult
+ */
 export function solve(board: Board): SolutionResult {
   const solution = solver(board);
 
@@ -27,7 +30,9 @@ export function solve(board: Board): SolutionResult {
   };
 }
 
-// solves the given board, assumes it is a valid board
+/*
+ * Recursive entry point for solving the sudoku puzzle
+ */
 function solver(board: Board): Board | false {
   if (solved(board)) {
     return board;
@@ -38,7 +43,10 @@ function solver(board: Board): Board | false {
   }
 }
 
-// finds a valid solution to the sudoku problem
+/*
+ * Finds a valid solution to the sudoku problem
+ * using a backtracking algorithm
+ */
 function searchForSolution(boards: Board[]): Board | false {
   if (boards.length < 1) {
     return false;
@@ -54,7 +62,10 @@ function searchForSolution(boards: Board[]): Board | false {
   }
 }
 
-// checks to see if the given puzzle is solved
+/*
+ * Verifies if the board is solved by
+ * checking for any null fields
+ */
 function solved(board: Board) {
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
@@ -64,10 +75,13 @@ function solved(board: Board) {
     }
   }
 
-  return true;
+  return validateBoard(board);
 }
 
-// finds the first emply square and generates 9 different boards filling in that square with numbers 1...9
+/*
+ * Finds the first empty square and generates 9 different boards
+ * filling in that square with numbers 1...9
+ */
 function nextBoards(board: Board) {
   const boards: Board[] = [];
   const firstEmpty = findEmptySquare(board);
@@ -86,7 +100,9 @@ function nextBoards(board: Board) {
   return boards;
 }
 
-// Gets the [i,j] coordinates for the first empty square
+/*
+ * Locates the [i,j] coordinates for the first empty square
+ */
 function findEmptySquare(board: Board) {
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
@@ -97,23 +113,33 @@ function findEmptySquare(board: Board) {
   }
 }
 
-// filters out all of the invalid boards from the list
+/*
+ * Filters out all of the invalid boards from the list
+ */
 function keepOnlyValid(boards: Board[]) {
   const validBoards: Board[] = [];
   for (let i = 0; i < boards.length; i++) {
-    if (validBoard(boards[i])) {
+    if (validateBoard(boards[i])) {
       validBoards.push(boards[i]);
     }
   }
   return validBoards;
 }
 
-// checks to see if given board is valid
-function validBoard(board: Board) {
-  return rowsGood(board) && columnsGood(board) && boxesGood(board);
+/*
+ * Validates the board has a valid solution
+ */
+function validateBoard(board: Board) {
+  return (
+    validateBoardRows(board) &&
+    validateBoardColumns(board) &&
+    validateBoardBoxes(board)
+  );
 }
-// makes sure there are no repeating numbers for each row
-function rowsGood(board: Board) {
+/*
+ * Validates all the board's rows are valid
+ */
+function validateBoardRows(board: Board) {
   for (let i = 0; i < 9; i++) {
     const values: BoardValue[] = [];
     for (let j = 0; j < 9; j++) {
@@ -128,8 +154,10 @@ function rowsGood(board: Board) {
   return true;
 }
 
-// makes sure there are no repeating numbers for each column
-function columnsGood(board: Board) {
+/*
+ * Validates all the board's columns are valid
+ */
+function validateBoardColumns(board: Board) {
   for (let i = 0; i < 9; i++) {
     const values: BoardValue[] = [];
     for (let j = 0; j < 9; j++) {
@@ -144,8 +172,10 @@ function columnsGood(board: Board) {
   return true;
 }
 
-// makes sure there are no repeating numbers for each box
-function boxesGood(board: Board) {
+/*
+ * Validates all the board's boxes are valid
+ */
+function validateBoardBoxes(board: Board) {
   const boxCoordinates = [
     [0, 0],
     [0, 1],

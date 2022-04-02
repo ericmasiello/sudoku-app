@@ -6,6 +6,9 @@ import { ErrorBoundary } from 'react-error-boundary';
 import userEvent from '@testing-library/user-event';
 import type { Puzzle } from '../Sudoku/sudokuTypes';
 
+/*
+ * Mock comlink so the web worker returns a "solved" puzzle
+ */
 jest.mock('comlink', () => {
   const { convertPuzzleTo2DArray } = jest.requireActual('../Sudoku/utility');
   return {
@@ -54,14 +57,14 @@ it('should render the game', async () => {
   // wait for loading spinner
   expect(await screen.findByRole('status')).toBeDefined();
 
-  // wait for the game form
+  // wait for the game form to appear
   expect(await screen.findByRole('form')).toBeDefined();
 });
 
 it('should reload the game when changing difficulty options', async () => {
   render(<Game />);
 
-  // wait for the game form
+  // wait for the game form to appear
   expect(await screen.findByRole('form')).toBeDefined();
 
   // change the difficulty to medium
@@ -79,7 +82,7 @@ it('should reload the game when changing difficulty options', async () => {
 it('should validate the game', async () => {
   render(<Game />);
 
-  // wait for the game form
+  // wait for the game form to appear
   expect(await screen.findByRole('form')).toBeDefined();
 
   // validate the board with invalid values (including position A1)
@@ -98,15 +101,20 @@ it('should validate the game', async () => {
 it('should solve the game when you give up', async () => {
   render(<Game />);
 
-  // wait for the game form
+  // wait for the game form to appear
   expect(await screen.findByRole('form')).toBeDefined();
 
   // click the give up button to see the solution
   userEvent.click(screen.getByText(/i give up/i));
 
-  // very the alert message appears
+  // verify the <button />s and <select /> are disabled
+  expect(screen.getByRole('combobox')).toBeDisabled();
+  expect(screen.getByText(/i give up/i)).toBeDisabled();
+  expect(screen.getByText(/validate/i)).toBeDisabled();
+
+  // verify the alert message appears
   expect((await screen.findByRole('alert')).textContent).toMatchInlineSnapshot(
-    `"Here is the solution. Try again!"`
+    `"Hang tight..."`
   );
 
   // click new game

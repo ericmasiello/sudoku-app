@@ -4,7 +4,7 @@ import { gameReducer } from './gameReducer';
 import type { Difficulty, Puzzle, PuzzleKey } from './sudokuTypes';
 import { fetchPuzzle } from './client/sudokuClient';
 import type { Board, SolutionResult } from './utility/solvePuzzle';
-// @ts-ignore
+// @ts-ignore - 'worker-loader' isn't typed
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import SolvePuzzleWorker from 'worker-loader!./utility/solvePuzzle.worker';
 import { convert2DArrayToPuzzle, convertPuzzleTo2DArray } from './utility';
@@ -128,8 +128,7 @@ export const useSudoku: UseSudoku = (options) => {
     };
   } else if (gameState.state === 'solved') {
     /*
-     * The 'solved' gameState maps to 'gameOver'. But again
-     *
+     * The 'solved' gameState maps to 'gameOver'.
      */
     return {
       state: 'gameOver',
