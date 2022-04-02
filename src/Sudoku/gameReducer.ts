@@ -1,4 +1,3 @@
-import produce from 'immer';
 import type { Difficulty, Puzzle, PuzzleKey } from './sudokuTypes';
 import {
   convert2DArrayToPuzzle,
@@ -99,20 +98,25 @@ export const gameReducer: GameReducer = (state, action) => {
     }
     case 'COMPUTE_SOLUTION': {
       const unsolvedPuzzle = action.payload;
-      const unsolvedPuzzleArray = convertPuzzleTo2DArray(unsolvedPuzzle);
-      // `solve` mutates the array, so we need to make a copy of it
-      const solvedPuzzleArray = produce(unsolvedPuzzleArray, (draft) => {
-        solve(draft);
-      });
+      const solution = solve(convertPuzzleTo2DArray(unsolvedPuzzle));
 
-      // TODO: implement better solving logic
-      const solvedPuzzle = convert2DArrayToPuzzle(solvedPuzzleArray);
+      if (solution.state === 'unsolved') {
+        return {
+          state: 'solved',
+          solution: unsolvedPuzzle,
+          difficulty: state.difficulty,
+          message: 'Sorry, this puzzle cannot be solved in this state.',
+        };
+      }
+
+      const solvedPuzzle = convert2DArrayToPuzzle(solution.board);
 
       return {
         state: 'solved',
         solution: solvedPuzzle,
         difficulty: state.difficulty,
-        message: 'Try again!',
+
+        message: 'Here is the solution. Try again!',
       };
     }
   }

@@ -43,7 +43,10 @@ export const fillPartialPuzzle = (puzzle: Partial<Puzzle>): Puzzle => {
 };
 
 export const sortPuzzle = (puzzle: Puzzle): Puzzle => {
-  const sortedKeys = Object.keys(puzzle).sort() as PuzzleKey[];
+  // sorts the puzzle by column, then row
+  const sortedKeys = Object.keys(puzzle).sort((a, b) =>
+    a.split('').reverse().join() < b.split('').reverse().join() ? -1 : 1
+  ) as PuzzleKey[];
 
   const initialPuzzle: Partial<Puzzle> = {};
 
@@ -138,8 +141,10 @@ which translates to (note: ignore the whitespace)
 
 */
 
-export const convertPuzzleTo2DArray = (puzzle: Puzzle): string[][] => {
-  const puzzleArray: string[][] = [];
+export const convertPuzzleTo2DArray = (
+  puzzle: Puzzle
+): Array<Array<number | null>> => {
+  const puzzleArray: Array<Array<number | null>> = [];
 
   for (let rowIndex = 0; rowIndex < PUZZLE_ROW_KEYS.length; rowIndex++) {
     const rowKey = PUZZLE_ROW_KEYS[rowIndex];
@@ -152,16 +157,22 @@ export const convertPuzzleTo2DArray = (puzzle: Puzzle): string[][] => {
     ) {
       const columnKey = PUZZLE_COLUMN_KEYS[columnIndex];
 
-      const value = puzzle[`${columnKey}${rowKey}`] ?? '';
+      const value: string | null = puzzle[`${columnKey}${rowKey}`];
 
-      puzzleArray[rowIndex].push(value);
+      if (value === '' || value === null) {
+        puzzleArray[rowIndex].push(null);
+      } else {
+        puzzleArray[rowIndex].push(parseInt(value));
+      }
     }
   }
 
   return puzzleArray;
 };
 
-export const convert2DArrayToPuzzle = (arr: string[][]): Puzzle => {
+export const convert2DArrayToPuzzle = (
+  arr: Array<Array<number | null>>
+): Puzzle => {
   const puzzle: Partial<Puzzle> = {};
 
   for (let rowIndex = 0; rowIndex < arr.length; rowIndex++) {
@@ -173,8 +184,8 @@ export const convert2DArrayToPuzzle = (arr: string[][]): Puzzle => {
       const key: PuzzleKey = `${columnKey}${rowKey}`;
       let value: PuzzleValue | null = null;
 
-      if (row[columnIndex] !== '') {
-        value = row[columnIndex] as PuzzleValue;
+      if (row[columnIndex] !== null) {
+        value = row[columnIndex]?.toString() as PuzzleValue;
       }
 
       puzzle[key] = value;

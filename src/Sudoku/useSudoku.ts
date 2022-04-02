@@ -47,13 +47,12 @@ export const useSudoku: UseSudoku = (options) => {
 
   useEffect(() => {
     dispatch({ type: 'LOAD_GAME' });
+    const abortController =
+      typeof AbortController !== 'undefined'
+        ? new AbortController()
+        : undefined;
 
     const execute = async () => {
-      const abortController =
-        typeof AbortController !== 'undefined'
-          ? new AbortController()
-          : undefined;
-
       const abortSignal = abortController?.signal;
 
       try {
@@ -77,6 +76,10 @@ export const useSudoku: UseSudoku = (options) => {
     };
 
     execute();
+
+    return () => {
+      abortController?.abort();
+    };
   }, [gameState.difficulty, gameReset]);
 
   /*
