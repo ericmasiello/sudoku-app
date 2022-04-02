@@ -1,12 +1,5 @@
 import type { Difficulty, Puzzle, PuzzleKey } from './sudokuTypes';
-import {
-  convert2DArrayToPuzzle,
-  convertPuzzleTo2DArray,
-  fillPartialPuzzle,
-  solve,
-  sortPuzzle,
-  validatePuzzle,
-} from './utility';
+import { fillPartialPuzzle, sortPuzzle, validatePuzzle } from './utility';
 
 export type GameState =
   | {
@@ -27,6 +20,13 @@ export type GameState =
       difficulty: Difficulty;
       puzzle: Puzzle;
       invalidKeys?: PuzzleKey[];
+      message?: string;
+    }
+  | {
+      state: 'busy';
+      difficulty: Difficulty;
+      puzzle: Puzzle;
+      invalidKeys?: PuzzleKey[];
     }
   | {
       state: 'solved';
@@ -44,9 +44,11 @@ type Action =
   | { type: 'LOAD_GAME_SUCCESS'; payload: Partial<Puzzle> }
   | { type: 'LOAD_GAME_FAIL'; payload: Error }
   | { type: 'CHANGE_DIFFICULTY'; payload: Difficulty }
-  | { type: 'COMPUTE_SOLUTION'; payload: Puzzle }
+  | { type: 'GAVE_UP'; payload: Puzzle }
+  | { type: 'INVALID_PUZZLE'; payload: Puzzle }
   | { type: 'RESET_GAME' }
-  | { type: 'VALIDATE_PUZZLE'; payload: Puzzle };
+  | { type: 'VALIDATE_PUZZLE'; payload: Puzzle }
+  | { type: 'SOLVING' };
 
 type GameReducer = (state: GameState, action: Action) => GameState;
 
@@ -96,27 +98,30 @@ export const gameReducer: GameReducer = (state, action) => {
         message: 'You did it!',
       };
     }
-    case 'COMPUTE_SOLUTION': {
-      const unsolvedPuzzle = action.payload;
-      const solution = solve(convertPuzzleTo2DArray(unsolvedPuzzle));
-
-      if (solution.state === 'unsolved') {
-        return {
-          state: 'solved',
-          solution: unsolvedPuzzle,
-          difficulty: state.difficulty,
-          message: 'Sorry, this puzzle cannot be solved in this state.',
-        };
-      }
-
-      const solvedPuzzle = convert2DArrayToPuzzle(solution.board);
-
+    case 'GAVE_UP': {
       return {
         state: 'solved',
-        solution: solvedPuzzle,
+        solution: action.payload,
         difficulty: state.difficulty,
-
         message: 'Here is the solution. Try again!',
+      };
+    }
+    case 'INVALID_PUZZLE': {
+      return {
+        state: 'ready',
+        puzzle: action.payload,
+        difficulty: state.difficulty,
+        message:
+          'Sorry, this puzzle cannot be solved in this state. Please try again.',
+      };
+    }
+    case 'SOLVING': {
+      if (state.state !== 'ready') {
+        throw new Error('Transitioning from an invalid state');
+      }
+      return {
+        ...state,
+        state: 'busy',
       };
     }
   }

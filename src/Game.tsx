@@ -2,6 +2,7 @@ import { useSudoku, Puzzle, Difficulty } from './Sudoku';
 import { Loading } from './common/Components/Loading';
 import { Button } from './common/Components/Button';
 import { Dropdown } from './common/Components/Dropdown';
+import { Alert } from './common/Components/Alert';
 import { convertFormToPuzzle } from './Sudoku';
 import { useThrowToErrorBoundary } from './common/hooks/useThrowToErrorBoundary';
 import './Game.css';
@@ -36,9 +37,7 @@ export const Game = () => {
         >
           New Game
         </Button>
-        <p className="game__status" role="alert" aria-live="polite">
-          {gameAPI.message}
-        </p>
+        <Alert className="game__status">{gameAPI.message}</Alert>
       </div>
     );
   }
@@ -97,6 +96,7 @@ export const Game = () => {
         puzzle={gameAPI.puzzle}
         invalidKeys={gameAPI.invalidKeys}
         className="game__puzzle"
+        disabled={gameAPI.state === 'busy'}
       />
       <div className="game__controls">
         <label className="visually-hidden" htmlFor="difficulty">
@@ -108,6 +108,7 @@ export const Game = () => {
           onChange={(event) => {
             gameAPI.handleChangeDifficulty(event.target.value as Difficulty);
           }}
+          disabled={gameAPI.state === 'busy'}
         >
           {difficultyOptions.map((difficulty) => (
             <option key={difficulty} value={difficulty}>
@@ -115,10 +116,24 @@ export const Game = () => {
             </option>
           ))}
         </Dropdown>
-        <Button type="submit" onClick={onSolve}>
+        <Button
+          type="submit"
+          onClick={onSolve}
+          disabled={gameAPI.state === 'busy'}
+        >
           I give up
         </Button>
-        <Button onClick={onValidate}>Validate</Button>
+        <Button onClick={onValidate} disabled={gameAPI.state === 'busy'}>
+          Validate
+        </Button>
+
+        {gameAPI.state === 'busy' && (
+          <Alert className="game__status">Hang tight...</Alert>
+        )}
+
+        {gameAPI.state === 'playing' && gameAPI.message && (
+          <Alert className="game__status">{gameAPI.message}</Alert>
+        )}
       </div>
     </form>
   );

@@ -1,8 +1,5 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-/*
- * API Types
- */
 export type PuzzleColumnKey =
   | 'A'
   | 'B'

@@ -1,7 +1,17 @@
 import { useEffect, useReducer } from 'react';
+import * as Comlink from 'comlink';
 import { gameReducer } from './gameReducer';
 import type { Difficulty, Puzzle, PuzzleKey } from './sudokuTypes';
 import { fetchPuzzle } from './client/sudokuClient';
+import type { Board, SolutionResult } from './utility/solvePuzzle';
+// @ts-ignore - 'worker-loader' isn't typed
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import SolvePuzzleWorker from 'worker-loader!./utility/solvePuzzle.worker';
+import { convert2DArrayToPuzzle, convertPuzzleTo2DArray } from './utility';
+
+const solvePuzzleWorker = Comlink.wrap<{
+  solve: (puzzle: Board) => SolutionResult;
+}>(new SolvePuzzleWorker());
 
 type GameAPI =
   | {
@@ -18,13 +28,14 @@ type GameAPI =
       error: Error;
     }
   | {
-      state: 'playing';
+      state: 'playing' | 'busy';
       difficulty: Difficulty;
       puzzle: Puzzle;
       invalidKeys: PuzzleKey[];
       handleChangeDifficulty: (difficulty: Difficulty) => void;
       handleValidate: (puzzle: Puzzle) => void;
       handleSolve: (puzzle: Puzzle) => void;
+      message?: string;
     }
   | {
       state: 'gameOver';
@@ -86,17 +97,30 @@ export const useSudoku: UseSudoku = (options) => {
    * The 'ready' gameState maps to 'playing'. However
    * we have to patch in additional methods for the playing state
    */
-  if (gameState.state === 'ready') {
+  if (gameState.state === 'ready' || gameState.state === 'busy') {
     return {
-      state: 'playing',
+      state: gameState.state === 'ready' ? 'playing' : 'busy',
       puzzle: gameState.puzzle,
+      message: gameState.state === 'ready' ? gameState.message : undefined,
       difficulty: gameState.difficulty,
       invalidKeys: gameState.invalidKeys ?? [],
       handleChangeDifficulty: (difficulty) => {
         dispatch({ type: 'CHANGE_DIFFICULTY', payload: difficulty });
       },
-      handleSolve: (puzzle: Puzzle) => {
-        dispatch({ type: 'COMPUTE_SOLUTION', payload: puzzle });
+      handleSolve: (unsolvedPuzzle: Puzzle) => {
+        dispatch({ type: 'SOLVING' });
+        solvePuzzleWorker
+          .solve(convertPuzzleTo2DArray(unsolvedPuzzle))
+          .then((result) => {
+            if (result.state === 'unsolved') {
+              dispatch({ type: 'INVALID_PUZZLE', payload: unsolvedPuzzle });
+              return;
+            }
+
+            const solvedPuzzle = convert2DArrayToPuzzle(result.board);
+
+            dispatch({ type: 'GAVE_UP', payload: solvedPuzzle });
+          });
       },
       handleValidate: (puzzle: Puzzle) => {
         dispatch({ type: 'VALIDATE_PUZZLE', payload: puzzle });
@@ -104,8 +128,7 @@ export const useSudoku: UseSudoku = (options) => {
     };
   } else if (gameState.state === 'solved') {
     /*
-     * The 'solved' gameState maps to 'gameOver'. But again
-     *
+     * The 'solved' gameState maps to 'gameOver'.
      */
     return {
       state: 'gameOver',

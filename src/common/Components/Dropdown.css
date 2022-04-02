@@ -3,6 +3,10 @@
   display: inline-block;
 }
 
+.dropdown--disabled {
+  border-color: var(--color-gray-1);
+}
+
 .dropdown::after {
   content: '';
   display: block;
@@ -30,4 +34,8 @@
   line-height: inherit;
   z-index: 1;
   text-transform: inherit;
+}
+
+.dropdown__select[disabled] {
+  background-color: var(--color-gray-1);
 }

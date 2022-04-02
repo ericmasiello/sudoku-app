@@ -6,4 +6,11 @@
   color: var(--color-gray-3);
   border: 2px solid var(--color-gray-3);
   border-radius: 3px;
+  cursor: pointer;
+}
+
+.control[disabled] {
+  background-color: var(--color-gray-1);
+  border-color: var(--color-gray-1);
+  cursor: not-allowed;
 }

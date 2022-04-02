@@ -1,5 +1,4 @@
 import { ErrorBoundary } from 'react-error-boundary';
-// import { PuzzleBoard } from './Sudoku.old';
 import { Game } from './Game';
 import { useLogging } from './Logging';
 import { ErrorFallback } from './ErrorBoundary';
