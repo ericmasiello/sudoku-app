@@ -4,7 +4,7 @@
 type BoardValue = number | null;
 export type Board = Array<Array<BoardValue>>;
 
-type SolutionResult =
+export type SolutionResult =
   | {
       state: 'unsolved';
     }
@@ -28,7 +28,7 @@ export function solve(board: Board): SolutionResult {
 }
 
 // solves the given board, assumes it is a valid board
-export function solver(board: Board): Board | false {
+function solver(board: Board): Board | false {
   if (solved(board)) {
     return board;
   } else {

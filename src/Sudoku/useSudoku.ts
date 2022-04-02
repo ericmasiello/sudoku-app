@@ -1,7 +1,17 @@
 import { useEffect, useReducer } from 'react';
+import * as Comlink from 'comlink';
 import { gameReducer } from './gameReducer';
 import type { Difficulty, Puzzle, PuzzleKey } from './sudokuTypes';
 import { fetchPuzzle } from './client/sudokuClient';
+import type { Board, SolutionResult } from './utility/solvePuzzle';
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import SolvePuzzleWorker from 'worker-loader!./utility/solvePuzzleWorker';
+import { convert2DArrayToPuzzle, convertPuzzleTo2DArray } from './utility';
+
+const solvePuzzleWorker = Comlink.wrap<{
+  solve: (puzzle: Board) => SolutionResult;
+}>(new SolvePuzzleWorker());
 
 type GameAPI =
   | {
@@ -95,8 +105,19 @@ export const useSudoku: UseSudoku = (options) => {
       handleChangeDifficulty: (difficulty) => {
         dispatch({ type: 'CHANGE_DIFFICULTY', payload: difficulty });
       },
-      handleSolve: (puzzle: Puzzle) => {
-        dispatch({ type: 'COMPUTE_SOLUTION', payload: puzzle });
+      handleSolve: (unsolvedPuzzle: Puzzle) => {
+        solvePuzzleWorker
+          .solve(convertPuzzleTo2DArray(unsolvedPuzzle))
+          .then((result) => {
+            if (result.state === 'unsolved') {
+              dispatch({ type: 'INVALID_PUZZLE', payload: unsolvedPuzzle });
+              return;
+            }
+
+            const solvedPuzzle = convert2DArrayToPuzzle(result.board);
+            console.log(solvedPuzzle);
+            dispatch({ type: 'GAVE_UP', payload: solvedPuzzle });
+          });
       },
       handleValidate: (puzzle: Puzzle) => {
         dispatch({ type: 'VALIDATE_PUZZLE', payload: puzzle });
