@@ -86,9 +86,11 @@ export const Game = () => {
   };
 
   return (
+    // note: [name] is required for form to have role="form"
     <form
       className="game"
       title="Sudoku Game"
+      name="Sudoku Game"
       onSubmit={(event) => event.preventDefault()}
     >
       <Puzzle
@@ -97,7 +99,11 @@ export const Game = () => {
         className="game__puzzle"
       />
       <div className="game__controls">
+        <label className="visually-hidden" htmlFor="difficulty">
+          Difficulty
+        </label>
         <Dropdown
+          id="difficulty"
           value={gameAPI.difficulty}
           onChange={(event) => {
             gameAPI.handleChangeDifficulty(event.target.value as Difficulty);
