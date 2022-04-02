@@ -8,10 +8,14 @@ type DropdownProps = React.DetailedHTMLProps<
 >;
 
 export const Dropdown: React.FC<DropdownProps> = (props) => {
-  const { className, ...rest } = props;
+  const { className, disabled, ...rest } = props;
   return (
-    <span className={classNames('control', 'dropdown', className)}>
-      <select className="dropdown__select" {...rest} />
+    <span
+      className={classNames('control', 'dropdown', className, {
+        'dropdown--disabled': disabled,
+      })}
+    >
+      <select className="dropdown__select" disabled={disabled} {...rest} />
     </span>
   );
 };

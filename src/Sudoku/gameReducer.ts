@@ -20,6 +20,13 @@ export type GameState =
       difficulty: Difficulty;
       puzzle: Puzzle;
       invalidKeys?: PuzzleKey[];
+      message?: string;
+    }
+  | {
+      state: 'busy';
+      difficulty: Difficulty;
+      puzzle: Puzzle;
+      invalidKeys?: PuzzleKey[];
     }
   | {
       state: 'solved';
@@ -40,7 +47,8 @@ type Action =
   | { type: 'GAVE_UP'; payload: Puzzle }
   | { type: 'INVALID_PUZZLE'; payload: Puzzle }
   | { type: 'RESET_GAME' }
-  | { type: 'VALIDATE_PUZZLE'; payload: Puzzle };
+  | { type: 'VALIDATE_PUZZLE'; payload: Puzzle }
+  | { type: 'SOLVING' };
 
 type GameReducer = (state: GameState, action: Action) => GameState;
 
@@ -100,10 +108,20 @@ export const gameReducer: GameReducer = (state, action) => {
     }
     case 'INVALID_PUZZLE': {
       return {
-        state: 'solved',
-        solution: action.payload,
+        state: 'ready',
+        puzzle: action.payload,
         difficulty: state.difficulty,
-        message: 'Sorry, this puzzle cannot be solved in this state.',
+        message:
+          'Sorry, this puzzle cannot be solved in this state. Please try again.',
+      };
+    }
+    case 'SOLVING': {
+      if (state.state !== 'ready') {
+        throw new Error('Transitioning from an invalid state');
+      }
+      return {
+        ...state,
+        state: 'busy',
       };
     }
   }

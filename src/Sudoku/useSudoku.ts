@@ -28,13 +28,14 @@ type GameAPI =
       error: Error;
     }
   | {
-      state: 'playing';
+      state: 'playing' | 'busy';
       difficulty: Difficulty;
       puzzle: Puzzle;
       invalidKeys: PuzzleKey[];
       handleChangeDifficulty: (difficulty: Difficulty) => void;
       handleValidate: (puzzle: Puzzle) => void;
       handleSolve: (puzzle: Puzzle) => void;
+      message?: string;
     }
   | {
       state: 'gameOver';
@@ -96,16 +97,18 @@ export const useSudoku: UseSudoku = (options) => {
    * The 'ready' gameState maps to 'playing'. However
    * we have to patch in additional methods for the playing state
    */
-  if (gameState.state === 'ready') {
+  if (gameState.state === 'ready' || gameState.state === 'busy') {
     return {
-      state: 'playing',
+      state: gameState.state === 'ready' ? 'playing' : 'busy',
       puzzle: gameState.puzzle,
+      message: gameState.state === 'ready' ? gameState.message : undefined,
       difficulty: gameState.difficulty,
       invalidKeys: gameState.invalidKeys ?? [],
       handleChangeDifficulty: (difficulty) => {
         dispatch({ type: 'CHANGE_DIFFICULTY', payload: difficulty });
       },
       handleSolve: (unsolvedPuzzle: Puzzle) => {
+        dispatch({ type: 'SOLVING' });
         solvePuzzleWorker
           .solve(convertPuzzleTo2DArray(unsolvedPuzzle))
           .then((result) => {
@@ -115,7 +118,7 @@ export const useSudoku: UseSudoku = (options) => {
             }
 
             const solvedPuzzle = convert2DArrayToPuzzle(result.board);
-            console.log(solvedPuzzle);
+
             dispatch({ type: 'GAVE_UP', payload: solvedPuzzle });
           });
       },
