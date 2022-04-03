@@ -4,5 +4,5 @@ type AlertProps = React.DetailedHTMLProps<
 >;
 
 export const Alert: React.FC<AlertProps> = (props) => {
-  return <p role="alert" aria-live="polite" {...props} />;
+  return <div role="alert" aria-live="polite" {...props} />;
 };
