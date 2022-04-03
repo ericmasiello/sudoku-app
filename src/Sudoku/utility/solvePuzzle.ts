@@ -1,5 +1,6 @@
 /*
- * Credit: This solution is heavily inspired by this video https://www.youtube.com/watch?v=3_50lwD7ygE
+ * Credit: This solution is lifted by the author of this video https://www.youtube.com/watch?v=3_50lwD7ygE.
+ * It was slightly refactored to fit the project's needs.
  */
 type BoardValue = number | null;
 export type Board = Array<Array<BoardValue>>;
