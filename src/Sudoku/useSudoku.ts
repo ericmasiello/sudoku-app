@@ -107,20 +107,30 @@ export const useSudoku: UseSudoku = (options) => {
       handleChangeDifficulty: (difficulty) => {
         dispatch({ type: 'CHANGE_DIFFICULTY', payload: difficulty });
       },
-      handleSolve: (unsolvedPuzzle: Puzzle) => {
+      handleSolve: async (unsolvedPuzzle: Puzzle) => {
         dispatch({ type: 'SOLVING' });
-        solvePuzzleWorker
-          .solve(convertPuzzleTo2DArray(unsolvedPuzzle))
-          .then((result) => {
-            if (result.state === 'unsolved') {
-              dispatch({ type: 'INVALID_PUZZLE', payload: unsolvedPuzzle });
-              return;
-            }
+        try {
+          const result = await solvePuzzleWorker.solve(
+            convertPuzzleTo2DArray(unsolvedPuzzle)
+          );
 
-            const solvedPuzzle = convert2DArrayToPuzzle(result.board);
+          if (result.state === 'unsolved') {
+            dispatch({ type: 'INVALID_PUZZLE', payload: unsolvedPuzzle });
+            return;
+          }
 
-            dispatch({ type: 'GAVE_UP', payload: solvedPuzzle });
+          const solvedPuzzle = convert2DArrayToPuzzle(result.board);
+
+          dispatch({ type: 'GAVE_UP', payload: solvedPuzzle });
+        } catch (error) {
+          dispatch({
+            type: 'SOLVE_FAIL',
+            payload:
+              error instanceof Error
+                ? error
+                : new Error('Unknown error when solving puzzle'),
           });
+        }
       },
       handleValidate: (puzzle: Puzzle) => {
         dispatch({ type: 'VALIDATE_PUZZLE', payload: puzzle });

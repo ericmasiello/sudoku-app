@@ -48,7 +48,8 @@ type Action =
   | { type: 'INVALID_PUZZLE'; payload: Puzzle }
   | { type: 'RESET_GAME' }
   | { type: 'VALIDATE_PUZZLE'; payload: Puzzle }
-  | { type: 'SOLVING' };
+  | { type: 'SOLVING' }
+  | { type: 'SOLVE_FAIL'; payload: Error };
 
 type GameReducer = (state: GameState, action: Action) => GameState;
 
@@ -57,7 +58,8 @@ export const gameReducer: GameReducer = (state, action) => {
     case 'LOAD_GAME': {
       return { ...state, state: 'loading' };
     }
-    case 'LOAD_GAME_FAIL': {
+    case 'LOAD_GAME_FAIL':
+    case 'SOLVE_FAIL': {
       return { ...state, state: 'error', error: action.payload };
     }
     case 'LOAD_GAME_SUCCESS': {
